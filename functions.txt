@@ -1,0 +1,91 @@
+
+remove_action('welcome_panel', 'wp_welcome_panel');
+
+add_action('after_setup_theme', 'remove_admin_bar');
+ 
+function remove_admin_bar() {
+if (!current_user_can('administrator') && !is_admin()) {
+  show_admin_bar(false);
+}
+}
+
+
+// REMOVE THE WORDPRESS UPDATE NOTIFICATION FOR ALL USERS EXCEPT SYSADMIN
+   global $user_login;
+   get_currentuserinfo();
+   if ($user_login !== "admin") { // change admin to the username that gets the updates
+    add_action( 'init', create_function( '$a', "remove_action( 'init', 'wp_version_check' );" ), 2 );
+    add_filter( 'pre_option_update_core', create_function( '$a', "return null;" ) );
+   }
+   
+   // REMOVE THE WORDPRESS UPDATE NOTIFICATION FOR ALL USERS EXCEPT SYSADMIN
+       global $user_login;
+       get_currentuserinfo();
+       if (!current_user_can('update_plugins')) { // checks to see if current user can update plugins 
+        add_action( 'init', create_function( '$a', "remove_action( 'init', 'wp_version_check' );" ), 2 );
+        add_filter( 'pre_option_update_core', create_function( '$a', "return null;" ) );
+       }
+       
+       add_action('init', 'init_remove_support',100);
+function init_remove_support(){
+    $post_type = 'post';
+    remove_post_type_support( $post_type, 'editor');
+}
+
+
+add_action('wp_dashboard_setup', 'my_custom_dashboard_widgets');
+
+function my_custom_dashboard_widgets() {
+   global $wp_meta_boxes;
+   
+   //حذف ابزارک های داشبورد
+   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
+   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
+   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
+   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
+   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
+   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_activity']);
+   unset($wp_meta_boxes['dashboard']['normal']['core']['hamyarwp_dashboard_widget']);
+   unset($wp_meta_boxes['dashboard']['side']['core']['deandev_dashboard_widget']);
+   
+   
+   wp_add_dashboard_widget('custom_help_widget', 'راهنمای کاربر', 'custom_dashboard_help');
+}
+
+//محتوای ابزارک
+function custom_dashboard_help() {
+    echo '<p>از منو سمت راست بر روی کلمه نوشته ها و بعد نوشته تازه کلیک کنید</p>';
+}
+
+function wp_hide_update() {
+       
+      
+            remove_action( 'admin_notices', 'update_nag', 3 );
+        
+    }
+    add_action('admin_menu','wp_hide_update');
+    
+    
+    // Hide 'Screen Options' tab
+function remove_screen_options_tab() {
+    return false;
+}
+add_filter('screen_options_show_screen', 'remove_screen_options_tab');
+
+// Hide Help tab
+function hide_help() {
+    echo '<style type="text/css">
+            #contextual-help-link-wrap { display: none !important; }
+            .updated{ display: none !important; }
+            #deandev_dashboard_widget{ display: none !important; }
+    </style>';
+}
+add_action('admin_head', 'hide_help');
+
+// Pages Titles
+function my_admin_title($admin_title, $title)
+{
+    return get_bloginfo('name').' &bull; '.$title;
+}
+add_filter('admin_title', 'my_admin_title', 10, 2);
+add_filter('login_title', 'my_admin_title', 10, 2);
