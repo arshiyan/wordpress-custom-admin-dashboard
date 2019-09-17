@@ -120,11 +120,12 @@ function my_custom_login() { ?>
 <?php }
 //This loads the function above on the login page
 add_action('login_head', 'my_custom_login');
-
+//تغییر ایمیل پیش فرض وردپرس
 // Function to change email address
 function rooyesh_sender_email( $original_email_address ) {
     return 'info@rooyesh.net';
 }
+//تغییر عنوان ایمیل وردپرس
 // Function to change sender name
 function rooyesh_sender_name( $original_email_from ) {
     return 'rooyesh';
